@@ -2,7 +2,13 @@
 <head>
     <title>SIMILE | Timeline | Examples | Christianity Timeline</title>
     <link rel='stylesheet' href='../styles.css' type='text/css' />
-    <script src="../../api/timeline-api.js" type="text/javascript"></script>
+
+    <!-- ############################################################################ -->
+    <!-- To use this file on your own system, replace ../../api/timeline-api.js with  -->
+    <!--     http://static.simile.mit.edu/timeline/api-2.3.0/timeline-api.js          -->
+    <!-- (Where 2.3.0 is the current release number.)                                 -->
+    <script src="../../api/timeline-api.js?bundle=true" type="text/javascript"></script>
+
     <script src="../examples.js" type="text/javascript"></script>
     <script>
         var tl;
@@ -89,7 +95,7 @@
 </head>
 <body onload="onLoad();" onresize="onResize();">
 <ul id="path">
-  <li><a href="http://simile.mit.edu/" title="Home">SIMILE</a></li>
+  <li><a href="http://code.google.com/p/simile-widgets/" title="Home">SIMILE</a></li>
   <li><a href="../../" title="Timeline">Timeline</a></li>
   <li><a href="../" title="Examples">Examples</a></li>
   <li><span>Christianity Timeline</span></li>
@@ -102,6 +108,8 @@
         The phrasing might not be of journalistic quality. The information in this example
         should not be used as an official source.
     </p>
+    <p>Timeline version <span id='tl_ver'></span>.</p>
+<script>Timeline.writeVersion('tl_ver')</script>
     
     <div id="tl" class="timeline-default" style="height: 600px;">
     </div>

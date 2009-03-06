@@ -3,6 +3,10 @@
  *==================================================
  */
 
+// Note: a number of features from original-painter 
+//       are not yet implemented in detailed painter.
+//       Eg classname, id attributes for icons, labels, tapes
+
 Timeline.DetailedEventPainter = function(params) {
     this._params = params;
     this._onSelectListeners = [];
@@ -24,6 +28,10 @@ Timeline.DetailedEventPainter.prototype.initialize = function(band, timeline) {
     this._highlightLayer = null;
     
     this._eventIdToElmt = null;
+};
+
+Timeline.DetailedEventPainter.prototype.getType = function() {
+    return 'detailed';
 };
 
 Timeline.DetailedEventPainter.prototype.addOnSelectListener = function(listener) {
@@ -98,6 +106,9 @@ Timeline.DetailedEventPainter.prototype.paint = function() {
     this._highlightLayer.style.display = "block";
     this._lineLayer.style.display = "block";
     this._eventLayer.style.display = "block";
+    // update the band object for max number of tracks in this section of the ether
+    this._band.updateEventTrackInfo(this._lowerTracks.length + this._upperTracks.length,
+                                 metrics.trackIncrement); 
 };
 
 Timeline.DetailedEventPainter.prototype.softPaint = function() {
@@ -665,10 +676,12 @@ Timeline.DetailedEventPainter.prototype.showBubble = function(evt) {
 
 Timeline.DetailedEventPainter.prototype._showBubble = function(x, y, evt) {
     var div = document.createElement("div");
+    var themeBubble = this._params.theme.event.bubble;
     evt.fillInfoBubble(div, this._params.theme, this._band.getLabeller());
     
     SimileAjax.WindowManager.cancelPopups();
-    SimileAjax.Graphics.createBubbleForContentAndPoint(div, x, y, this._params.theme.event.bubble.width);
+    SimileAjax.Graphics.createBubbleForContentAndPoint(div, x, y, 
+       themeBubble.width, null, themeBubble.maxHeight);
 };
 
 Timeline.DetailedEventPainter.prototype._fireOnSelect = function(eventID) {

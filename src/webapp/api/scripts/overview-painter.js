@@ -19,6 +19,10 @@ Timeline.OverviewEventPainter.prototype.initialize = function(band, timeline) {
     this._highlightLayer = null;
 };
 
+Timeline.OverviewEventPainter.prototype.getType = function() {
+    return 'overview';
+};
+
 Timeline.OverviewEventPainter.prototype.addOnSelectListener = function(listener) {
     this._onSelectListeners.push(listener);
 };
@@ -84,6 +88,8 @@ Timeline.OverviewEventPainter.prototype.paint = function() {
     
     this._highlightLayer.style.display = "block";
     this._eventLayer.style.display = "block";
+    // update the band object for max number of tracks in this section of the ether
+    this._band.updateEventTrackInfo(this._tracks.length, metrics.trackIncrement); 
 };
 
 Timeline.OverviewEventPainter.prototype.softPaint = function() {
@@ -119,8 +125,13 @@ Timeline.OverviewEventPainter.prototype.paintInstantEvent = function(evt, metric
     var startDate = evt.getStart();
     var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
     
-    var color = evt.getColor();
-    color = color != null ? color : theme.event.duration.color;
+    var color = evt.getColor(),
+        klassName = evt.getClassName();
+    if (klassName) {
+      color = null;
+    } else {
+      color = color != null ? color : theme.event.duration.color;
+    }
     
     var tickElmtData = this._paintEventTick(evt, startPixel, color, 100, metrics, theme);
     
@@ -142,30 +153,40 @@ Timeline.OverviewEventPainter.prototype.paintDurationEvent = function(evt, metri
     }
     this._tracks[tapeTrack] = earliestEndPixel;
     
-    var color = evt.getColor();
-    color = color != null ? color : theme.event.duration.color;
+    var color = evt.getColor(),
+        klassName = evt.getClassName();
+    if (klassName) {
+      color = null;
+    } else {
+      color = color != null ? color : theme.event.duration.color;
+    }
     
-    var tapeElmtData = this._paintEventTape(evt, tapeTrack, latestStartPixel, earliestEndPixel, color, 100, metrics, theme);
+    var tapeElmtData = this._paintEventTape(evt, tapeTrack, latestStartPixel, earliestEndPixel,
+      color, 100, metrics, theme, klassName);
     
     this._createHighlightDiv(highlightIndex, tapeElmtData, theme);
 };
 
 Timeline.OverviewEventPainter.prototype._paintEventTape = function(
-    evt, track, left, right, color, opacity, metrics, theme) {
+    evt, track, left, right, color, opacity, metrics, theme, klassName) {
     
     var top = metrics.trackOffset + track * metrics.trackIncrement;
     var width = right - left;
     var height = metrics.trackHeight;
     
     var tapeDiv = this._timeline.getDocument().createElement("div");
-	  tapeDiv.className = 'timeline-small-event-tape'
-//    tapeDiv.style.position = "absolute";
+    tapeDiv.className = 'timeline-small-event-tape'
+    if (klassName) {tapeDiv.className += ' small-' + klassName;}
     tapeDiv.style.left = left + "px";
     tapeDiv.style.width = width + "px";
     tapeDiv.style.top = top + "px";
- //   tapeDiv.style.height = height + "px";
- //   tapeDiv.style.backgroundColor = color;
- //   tapeDiv.style.overflow = "hidden";
+    tapeDiv.style.height = height + "px";
+    
+    if (color) {
+      tapeDiv.style.backgroundColor = color; // set color here if defined by event. Else use css
+    }
+ //   tapeDiv.style.overflow = "hidden";   // now set in css
+ //   tapeDiv.style.position = "absolute";
     if(opacity<100) SimileAjax.Graphics.setOpacity(tapeDiv, opacity);
     
     this._eventLayer.appendChild(tapeDiv);
@@ -187,20 +208,19 @@ Timeline.OverviewEventPainter.prototype._paintEventTick = function(
     var width = 1;
     
     var tickDiv = this._timeline.getDocument().createElement("div");
-	tickDiv.className = 'timeline-small-event-icon'
-//    tickDiv.style.position = "absolute";
+	  tickDiv.className = 'timeline-small-event-icon'
     tickDiv.style.left = left + "px";
-  //  tickDiv.style.width = width + "px";
     tickDiv.style.top = top + "px";
+  //  tickDiv.style.width = width + "px";
+  //  tickDiv.style.position = "absolute";
   //  tickDiv.style.height = height + "px";
-//  tickDiv.style.backgroundColor = color;
-//  tickDiv.style.overflow = "hidden";
+  //  tickDiv.style.backgroundColor = color;
+  //  tickDiv.style.overflow = "hidden";
 
-	var classname = evt.getClassName()
-	if(classname) tickDiv.className +=' small-' + classname;
+    var klassName = evt.getClassName()
+    if (klassName) {tickDiv.className +=' small-' + klassName};
 	
-	
-    if(opacity<100) SimileAjax.Graphics.setOpacity(tickDiv, opacity);
+    if(opacity<100) {SimileAjax.Graphics.setOpacity(tickDiv, opacity)};
     
     this._eventLayer.appendChild(tickDiv);
     
